@@ -128,7 +128,7 @@ var VibeJs = {
 
 					target.addEventListener ("click", function (event)
 					{
-						VibeJs.CommentButton (VibeJs.highlightedElement, "open");
+						VibeJs.CommentButton ("open");
 
 						for (var index = 0; index < stars.length; ++index)
 						{
