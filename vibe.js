@@ -1,13 +1,14 @@
 var VibeJs = {
 
 	testingState       : "paused",
-	theme              : null,
+	theme              : "blue",
 	widgetContainer    : null,
 	widget             : null,
 	highlightedElement : null,
 	ratingForm         : null,
 	commentButton      : null,
 	commentText        : null,
+	adminLauncher      : null,
 	targetElements     : ["DIV", "SPAN"],
 
 	DrawWidget       : function()
@@ -19,6 +20,12 @@ var VibeJs = {
 
 		this.widget.addEventListener ("click", function (event)
 		{
+			if (VibeJs.adminLauncher)
+			{
+				VibeJs.adminLauncher.parentElement.removeChild (VibeJs.adminLauncher);
+				VibeJs.adminLauncher = null;
+			}
+
 			if (VibeJs.testingState == "paused")
 			{
 				VibeJs.testingState = "recording";
@@ -38,21 +45,34 @@ var VibeJs = {
 				VibeJs.widget.style.backgroundImage = 'url("vibe.js/talk.png")';
 				VibeJs.highlightedElement = null;
 
-				var elements = document.querySelectorAll ("*");
+				VibeJs.Persist.currentRecording = VibeJs.Persist.CreateRecording();
+				console.log (VibeJs.Persist.currentRecording);
+			}
+		});
 
-				for (index in elements)
+		var adminTimeOut;
+
+		this.widgetContainer.addEventListener ("mouseenter", function (event)
+		{
+			if (VibeJs.testingState == "paused")
+			{
+				adminTimeOut = setTimeout (function(){VibeJs.Admin.DrawAdminPanel()}, 1000);
+			}
+		});
+
+		this.widgetContainer.addEventListener ("mouseleave", function (event)
+		{
+			clearTimeout (adminTimeOut);
+			setTimeout (function()
+			{
+				if (VibeJs.adminLauncher)
 				{
-					if (elements[index].dataset && elements[index].dataset.rating)
-					{
-						console.log (VibeJs.GetXPath (elements[index]));
-						console.log (elements[index].dataset.rating);
-						console.log (elements[index].dataset.comment);
-					}
+					VibeJs.adminLauncher.parentElement.removeChild (VibeJs.adminLauncher);
+					VibeJs.adminLauncher = null;
 				}
 
-				console.log (navigator.userAgent);
-			}
-		})
+			}, 1000);
+		});
 	},
 
 	DrawRatingForm   : function (element)
@@ -322,6 +342,82 @@ var VibeJs = {
 			}
 
 			if (sibling.nodeType === 1 && sibling.tagName === element.tagName){index++};
+		}
+	},
+
+	Admin            :
+	{
+		workspaceOverlay : null,
+
+		DrawAdminPanel : function()
+		{
+			VibeJs.adminLauncher = this.DrawAdminLauncher();
+
+			VibeJs.adminLauncher.addEventListener ("click", function()
+			{
+				VibeJs.Admin.DrawAdminWorkspace();
+			});
+		},
+
+		DrawAdminLauncher : function()
+		{
+			var launcher = document.createElement ("div");
+			launcher.className = "launcher";
+			VibeJs.widgetContainer.appendChild (launcher);
+
+			var dashboardIcon = document.createElement ("img");
+			dashboardIcon.style.width = "50px";
+			dashboardIcon.style.height = "50px";
+			dashboardIcon.style.margin = "4px 0px 0px 130px";
+			dashboardIcon.style.opacity = "0.4";
+			dashboardIcon.src = "vibe.js/dashboard.png";
+
+			launcher.appendChild (dashboardIcon);
+
+			return launcher;
+		},
+
+		DrawAdminWorkspace : function()
+		{
+			var workspaceOverlay = document.createElement ("div");
+			workspaceOverlay.className = "workspaceOverlay";
+			document.body.appendChild (workspaceOverlay);
+
+			VibeJs.Admin.workspaceOverlay = workspaceOverlay;
+		}
+	},
+
+	Persist          :
+	{
+		currentRecording : {},
+
+		CreateRecording  : function()
+		{
+			var elements = document.querySelectorAll ("*");
+
+			var newRecording = {};
+
+			for (index in elements)
+			{
+				if (elements[index].dataset && elements[index].dataset.rating)
+				{
+					newRecording[index] = {
+						xpath   : VibeJs.GetXPath (elements[index]),
+						rating  : elements[index].dataset.rating,
+						comment : elements[index].dataset.comment
+					}
+				}
+			}
+
+			return {
+				audit :
+				{
+					browser   : navigator.userAgent,
+					timestamp : Math.round (+new Date() / 1000) // UNIX time.
+				},
+
+				data  : newRecording
+			}
 		}
 	}
 }
