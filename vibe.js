@@ -82,31 +82,13 @@ var VibeJs = {
 		var starBar = document.createElement ("div");
 		starBar.className = "starBar";
 
-		var starBarRating1 = document.createElement ("span");
-		starBarRating1.className = "star";
-		starBarRating1.setAttribute ("disabled", "true");
-
-		var starBarRating2 = document.createElement ("span");
-		starBarRating2.className = "star";
-		starBarRating2.setAttribute ("disabled", "true");
-
-		var starBarRating3 = document.createElement ("span");
-		starBarRating3.className = "star";
-		starBarRating3.setAttribute ("disabled", "true");
-
-		var starBarRating4 = document.createElement ("span");
-		starBarRating4.className = "star";
-		starBarRating4.setAttribute ("disabled", "true");
-
-		var starBarRating5 = document.createElement ("span");
-		starBarRating5.className = "star";
-		starBarRating5.setAttribute ("disabled", "true");
-
-		starBar.appendChild (starBarRating1);
-		starBar.appendChild (starBarRating2);
-		starBar.appendChild (starBarRating3);
-		starBar.appendChild (starBarRating4);
-		starBar.appendChild (starBarRating5);
+		for (count = 1; count <= 5; count++)
+		{
+			var starBarRating = document.createElement ("span");
+			starBarRating.className = "star";
+			starBarRating.setAttribute ("disabled", "true");
+			starBar.appendChild (starBarRating);
+		}
 
 		element.appendChild (starBar);
 
