@@ -190,12 +190,32 @@ var VibeJs = {
 			commentText.style.top = "40px";
 			commentText.style.padding = "10px";
 			commentText.style.overflow = "auto";
-			commentText.setAttribute ("contenteditable", "true");
+			commentText.style.color = "#bbbbbb";
+			commentText.style.outline = "0px solid transparent";
 
-			commentText.innerText = VibeJs.highlightedElement.dataset.comment || "";
+			if (!VibeJs.highlightedElement.dataset.comment)
+			{
+				commentText.style.color = "#bbbbbb";
+			}
+			else
+			{
+				commentText.style.color = "#000000";
+			}
+
+			commentText.setAttribute ("contenteditable", "true");
+			commentText.innerText = VibeJs.highlightedElement.dataset.comment || "Add comment here.";
 
 			VibeJs.highlightedElement.appendChild (commentText);
 			VibeJs.commentText = commentText;
+
+			commentText.addEventListener ("click", function()
+			{
+				if (!VibeJs.highlightedElement.dataset.comment)
+				{
+					commentText.style.color = "#000000";
+					VibeJs.commentText.innerText = "";
+				}
+			});
 
 			commentText.addEventListener ("mouseout", function()
 			{
