@@ -1,39 +1,56 @@
 var VibeJs = {
 
+	testingState       : "paused",
 	theme              : null,
 	widgetContainer    : null,
 	widget             : null,
 	highlightedElement : null,
 	ratingForm         : null,
+	commentButton      : null,
+	commentText        : null,
 	targetElements     : ["DIV", "SPAN"],
 
 	DrawWidget       : function()
 	{
-		this.widgetContainer = document.querySelectorAll ("feedback")[0];
+		this.widgetContainer = document.querySelectorAll ("vibejs")[0];
 		this.widget = document.createElement ("div");
 		this.widget.className = "feedBackWidget " + this.theme;
 		this.widgetContainer.appendChild (this.widget);
 
 		this.widget.addEventListener ("click", function (event)
 		{
-			VibeJs.widget.style.backgroundImage = 'url("vibe.js/pause.png")';
-
-			document.addEventListener ("mouseover", function (event)
+			if (VibeJs.testingState == "paused")
 			{
-				VibeJs.HighlightElement (event.target);
-			});
+				VibeJs.testingState = "recording";
+				VibeJs.widget.style.backgroundImage = 'url("vibe.js/pause.png")';
 
-			var elements = document.querySelectorAll ("*");
-
-			for (index in elements)
-			{
-				console.log (elements[index])
-
-				if (elements[index].dataset && elements[index].dataset.rating)
+				document.addEventListener ("mouseover", function (event)
 				{
-					console.log (VibeJs.GetXPath (elements[index]));
-					console.log (elements[index].dataset.rating);
+					if (VibeJs.testingState == "recording")
+					{
+						VibeJs.HighlightElement (event.target);
+					}
+				});
+			}
+			else if (VibeJs.testingState == "recording")
+			{
+				VibeJs.testingState = "paused";
+				VibeJs.widget.style.backgroundImage = 'url("vibe.js/talk.png")';
+				VibeJs.highlightedElement = null;
+
+				var elements = document.querySelectorAll ("*");
+
+				for (index in elements)
+				{
+					if (elements[index].dataset && elements[index].dataset.rating)
+					{
+						console.log (VibeJs.GetXPath (elements[index]));
+						console.log (elements[index].dataset.rating);
+						console.log (elements[index].dataset.comment);
+					}
 				}
+
+				console.log (navigator.userAgent);
 			}
 		})
 	},
@@ -122,14 +139,19 @@ var VibeJs = {
 						starBarElement[nodeIndex].removeAttribute ("disabled");
 					}
 
+					if (VibeJs.highlightedElement.dataset.rating)
+					{
+						VibeJs.CommentButton (VibeJs.highlightedElement);
+					}
+
 					target.addEventListener ("click", function (event)
 					{
+						VibeJs.CommentButton (VibeJs.highlightedElement, "open");
+
 						for (var index = 0; index < stars.length; ++index)
 						{
 							if (stars[index] == target){VibeJs.highlightedElement.dataset.rating = index};
 						}
-
-						VibeJs.CommentButton (VibeJs.highlightedElement);
 					});
 				}
 				else
@@ -141,21 +163,70 @@ var VibeJs = {
 		}
 	},
 
-	CommentButton    : function (element)
+	CommentButton    : function (state)
 	{
+		var commentButtonsOnPage = document.querySelectorAll (".commentButton");
+
+		for (var commentButtons in commentButtonsOnPage)
+		{
+			if (commentButtonsOnPage[commentButtons].parentElement)
+			{
+				commentButtonsOnPage[commentButtons].parentElement.removeChild (commentButtonsOnPage[commentButtons]);
+			}
+		}
+
 		var commentButton = document.createElement ("div");
 		commentButton.className = "commentButton";
-		commentButton.offsetleft = "100px";
-		commentButton.offsetTop = "100px";
+		commentButton.style.left = VibeJs.highlightedElement.offsetWidth - 65 + "px";
+		commentButton.style.top = VibeJs.highlightedElement.offsetHeight - 65 + "px";
 
+		VibeJs.commentButton = commentButton;
 		VibeJs.highlightedElement.appendChild (commentButton);
+
+		if (state == "open")
+		{
+			VibeJs.CommentText();
+		}
+		else
+		{
+			commentButton.addEventListener ("click", function (event)
+			{
+				VibeJs.CommentText();
+			});
+		}
+	},
+
+	CommentText      : function()
+	{
+		if (!VibeJs.commentText)
+		{
+			var commentText = document.createElement ("div");
+			commentText.className = "commentText";
+			commentText.style.width = VibeJs.highlightedElement.offsetWidth - 20 + "px";
+			commentText.style.height = VibeJs.highlightedElement.offsetHeight - 70 + "px";
+			commentText.style.left = "5px";
+			commentText.style.top = "40px";
+			commentText.style.padding = "10px";
+			commentText.style.overflow = "auto";
+			commentText.setAttribute ("contenteditable", "true");
+
+			commentText.innerText = VibeJs.highlightedElement.dataset.comment || "";
+
+			VibeJs.highlightedElement.appendChild (commentText);
+			VibeJs.commentText = commentText;
+
+			commentText.addEventListener ("mouseout", function()
+			{
+				VibeJs.highlightedElement.dataset.comment = commentText.innerText;
+			});
+		}
 	},
 
 	HighlightElement : function (element)
 	{
 		var highlightElement = false;
 
-		if (element && element.nodeName && element != VibeJs.ratingForm && element != VibeJs.widget)
+		if (element && element.nodeName && element != VibeJs.ratingForm && element != VibeJs.commentButton && element != VibeJs.widget)
 		{
 			while (element && !highlightElement)
 			{
@@ -211,8 +282,21 @@ var VibeJs = {
 					{
 						VibeJs.ratingForm.parentElement.removeChild (VibeJs.ratingForm);
 						VibeJs.ratingForm = null;
-						VibeJs.highlightedElement = null;
 					}
+
+					if (VibeJs.commentButton && VibeJs.commentButton.parentElement)
+					{
+						VibeJs.commentButton.parentElement.removeChild (VibeJs.commentButton);
+						VibeJs.commentButton = null;
+					}
+
+					if (VibeJs.commentText && VibeJs.commentText.parentElement)
+					{
+						VibeJs.commentText.parentElement.removeChild (VibeJs.commentText);
+						VibeJs.commentText = null;
+					}
+
+					VibeJs.highlightedElement = null;
 				})
 			}
 		}
