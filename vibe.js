@@ -379,11 +379,14 @@ var VibeJs = {
 
 		DrawAdminWorkspace : function()
 		{
-			var workspaceOverlay = document.createElement ("div");
-			workspaceOverlay.className = "workspaceOverlay";
-			document.body.appendChild (workspaceOverlay);
+			if (!VibeJs.Admin.workspaceOverlay)
+			{
+				var workspaceOverlay = document.createElement ("div");
+				workspaceOverlay.className = "workspaceOverlay";
+				VibeJs.widgetContainer.appendChild (workspaceOverlay);
 
-			VibeJs.Admin.workspaceOverlay = workspaceOverlay;
+				VibeJs.Admin.workspaceOverlay = workspaceOverlay;
+			}
 		}
 	},
 

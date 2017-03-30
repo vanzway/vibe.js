@@ -97,7 +97,7 @@
 	background-color    : #000000;
 	border              : 1px solid #999999;
 	border-radius       : 50px;
-	box-shadow          : 0px 0px 20px #666666;
+	box-shadow          : 0px 0px 2px #666666;
 	position            : absolute;
 	z-index             : 2005;
 	cursor              : pointer;
@@ -111,5 +111,5 @@
 	position            : fixed;
 	top                 : 0px;
 	z-index             : 2000;
-	opacity             : 0.5;
+	opacity             : 0.9;
 }
