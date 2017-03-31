@@ -417,7 +417,7 @@ var VibeJs = {
 				VibeJs.Admin.workspaceOverlay.style.display = "block";
 			}
 
-			console.log (VibeJs.Persist.Retrieve.Query ("rating > 0 AND comment == 'asd'"))
+			console.log (VibeJs.Persist.Retrieve.QueryParser ("rating > 0 AND comment == 'asd'"))
 
 		}
 	},
@@ -475,7 +475,7 @@ var VibeJs = {
 				return auditValues[0];
 			},
 
-			Query : function (query)
+			QueryParser : function (query)
 			{
 				if (VibeJs.Persist.currentRecording.data)
 				{
