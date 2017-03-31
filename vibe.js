@@ -15,7 +15,7 @@ var VibeJs = {
 	{
 		this.widgetContainer = document.querySelectorAll ("vibejs")[0];
 		this.widget = document.createElement ("div");
-		this.widget.className = "feedBackWidget " + this.theme;
+		this.widget.className = "vibeJsWidget " + this.theme;
 		this.widgetContainer.appendChild (this.widget);
 
 		document.addEventListener ("mouseover", function (event)
@@ -29,8 +29,6 @@ var VibeJs = {
 		this.widget.addEventListener ("click", function (event)
 		{
 			VibeJs.highlightedElement = null;
-
-			console.log (VibeJs.testingButtonState)
 
 			switch (VibeJs.testingButtonState)
 			{
@@ -54,6 +52,7 @@ var VibeJs = {
 				case "pause":
 					VibeJs.Admin.DrawAdminLauncher();
 					VibeJs.widget.style.backgroundImage = 'url("vibe.js/record.png")';
+					VibeJs.Persist.currentRecording = VibeJs.Persist.CreateRecording();
 					VibeJs.testingButtonState = "record";
 
 				default :
@@ -418,7 +417,8 @@ var VibeJs = {
 				VibeJs.Admin.workspaceOverlay.style.display = "block";
 			}
 
-			console.log (VibeJs.Persist.RetrieveByKey ("data"))
+			console.log (VibeJs.Persist.Retrieve.Query ("rating > 0 AND comment == 'asd'"))
+
 		}
 	},
 
@@ -430,17 +430,18 @@ var VibeJs = {
 		{
 			var elements = document.querySelectorAll ("*");
 
-			var newRecording = {};
+			var newRecording = [];
 
 			for (index in elements)
 			{
 				if (elements[index].dataset && elements[index].dataset.rating)
 				{
-					newRecording[index] = {
+					newRecording.push (
+					{
 						xpath   : VibeJs.GetXPath (elements[index]),
-						rating  : elements[index].dataset.rating,
+						rating  : elements[index].dataset.rating + 1, // Cos we storing a value and not an index.
 						comment : elements[index].dataset.comment
-					}
+					})
 				}
 			}
 
@@ -455,26 +456,49 @@ var VibeJs = {
 			}
 		},
 
-		RetrieveByKey    : function (queryKey)
+		Retrieve :
 		{
-			var dataKeys = Object.keys (VibeJs.Persist.currentRecording);
-
-			if (dataKeys.indexOf (queryKey) !== -1)
+			AuditDetails : function()
 			{
-				var matchingKeys = dataKeys.filter (function (key)
+				var dataKeys = Object.keys (VibeJs.Persist.currentRecording);
+
+				var auditKeys = dataKeys.filter (function (key)
 				{
-					return key.indexOf (queryKey) !== -1;
+					return key.indexOf ("audit") !== -1;
 				});
 
-				var matchingValues = matchingKeys.map (function (key)
+				var auditValues = auditKeys.map (function (key)
 				{
 					return VibeJs.Persist.currentRecording[key];
 				});
 
-				return matchingValues;
-			}
+				return auditValues[0];
+			},
 
-			return null;
+			Query : function (query)
+			{
+				if (VibeJs.Persist.currentRecording.data)
+				{
+					var parsedQuery;
+
+					parsedQuery = query.replace (new RegExp ("AND", 'g'), "&&");
+					parsedQuery = parsedQuery.replace (new RegExp ("OR", 'g'), "||");
+
+					for (validKeys in VibeJs.Persist.currentRecording.data[0])
+					{
+						parsedQuery = parsedQuery.replace (new RegExp (validKeys, 'g'), "key['" + validKeys + "']");
+					}
+
+					return VibeJs.Persist.currentRecording.data.filter (function (key)
+					{
+						return eval (parsedQuery);
+					});
+				}
+				else
+				{
+					return null;
+				}
+			}
 		}
 	}
 }
