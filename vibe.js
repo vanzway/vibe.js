@@ -1,6 +1,6 @@
 var VibeJs = {
 
-	testingState       : "paused",
+	testingButtonState : "ready",
 	theme              : "blue",
 	widgetContainer    : null,
 	widget             : null,
@@ -18,60 +18,50 @@ var VibeJs = {
 		this.widget.className = "feedBackWidget " + this.theme;
 		this.widgetContainer.appendChild (this.widget);
 
+		document.addEventListener ("mouseover", function (event)
+		{
+			if (VibeJs.testingButtonState == "pause")
+			{
+				VibeJs.HighlightElement (event.target);
+			}
+		});
+
 		this.widget.addEventListener ("click", function (event)
 		{
-			if (VibeJs.adminLauncher)
-			{
-				VibeJs.adminLauncher.parentElement.removeChild (VibeJs.adminLauncher);
-				VibeJs.adminLauncher = null;
-			}
+			VibeJs.highlightedElement = null;
 
-			if (VibeJs.testingState == "paused")
-			{
-				VibeJs.testingState = "recording";
-				VibeJs.widget.style.backgroundImage = 'url("vibe.js/pause.png")';
+			console.log (VibeJs.testingButtonState)
 
-				document.addEventListener ("mouseover", function (event)
-				{
-					if (VibeJs.testingState == "recording")
+			switch (VibeJs.testingButtonState)
+			{
+				case "ready":
+					VibeJs.Admin.DrawAdminLauncher();
+					VibeJs.widget.style.backgroundImage = 'url("vibe.js/record.png")';
+					VibeJs.testingButtonState = "record";
+					break;
+
+				case "record":
+					if (VibeJs.adminLauncher)
 					{
-						VibeJs.HighlightElement (event.target);
+						VibeJs.adminLauncher.parentElement.removeChild (VibeJs.adminLauncher);
+						VibeJs.adminLauncher = null;
 					}
-				});
+
+					VibeJs.widget.style.backgroundImage = 'url("vibe.js/pause.png")';
+					VibeJs.testingButtonState = "pause";
+					break;
+
+				case "pause":
+					VibeJs.Admin.DrawAdminLauncher();
+					VibeJs.widget.style.backgroundImage = 'url("vibe.js/record.png")';
+					VibeJs.testingButtonState = "record";
+
+				default :
+					VibeJs.Admin.DrawAdminLauncher();
+					VibeJs.widget.style.backgroundImage = 'url("vibe.js/record.png")';
+					VibeJs.testingButtonState = "record";
+					break;
 			}
-			else if (VibeJs.testingState == "recording")
-			{
-				VibeJs.testingState = "paused";
-				VibeJs.widget.style.backgroundImage = 'url("vibe.js/talk.png")';
-				VibeJs.highlightedElement = null;
-
-				VibeJs.Persist.currentRecording = VibeJs.Persist.CreateRecording();
-				console.log (VibeJs.Persist.currentRecording);
-			}
-		});
-
-		var adminTimeOut;
-
-		this.widgetContainer.addEventListener ("mouseenter", function (event)
-		{
-			if (VibeJs.testingState == "paused")
-			{
-				adminTimeOut = setTimeout (function(){VibeJs.Admin.DrawAdminPanel()}, 1000);
-			}
-		});
-
-		this.widgetContainer.addEventListener ("mouseleave", function (event)
-		{
-			clearTimeout (adminTimeOut);
-			setTimeout (function()
-			{
-				if (VibeJs.adminLauncher)
-				{
-					VibeJs.adminLauncher.parentElement.removeChild (VibeJs.adminLauncher);
-					VibeJs.adminLauncher = null;
-				}
-
-			}, 1000);
 		});
 	},
 
@@ -347,34 +337,70 @@ var VibeJs = {
 
 	Admin            :
 	{
+		workspaceView    : false,
 		workspaceOverlay : null,
-
-		DrawAdminPanel : function()
-		{
-			VibeJs.adminLauncher = this.DrawAdminLauncher();
-
-			VibeJs.adminLauncher.addEventListener ("click", function()
-			{
-				VibeJs.Admin.DrawAdminWorkspace();
-			});
-		},
 
 		DrawAdminLauncher : function()
 		{
+			var adminLauncherTimeOut;
+
+			if (VibeJs.adminLauncher)
+			{
+				VibeJs.adminLauncher.parentElement.removeChild (VibeJs.adminLauncher);
+				VibeJs.adminLauncher = null;
+			}
+
 			var launcher = document.createElement ("div");
 			launcher.className = "launcher";
+
+			var launcherIcon = document.createElement ("img");
+			launcherIcon.className = "launcherIcon";
+			launcherIcon.style.width = "50px";
+			launcherIcon.style.height = "50px";
+			launcherIcon.style.margin = "4px 0px 0px 130px";
+			launcherIcon.style.opacity = "0.4";
+			launcherIcon.src = "vibe.js/dashboard.png";
+
+			launcher.addEventListener ("click", function()
+			{
+				if (VibeJs.Admin.workspaceView)
+				{
+					VibeJs.Admin.workspaceView = false;
+					launcherIcon.src = "vibe.js/dashboard.png";
+					VibeJs.Admin.workspaceOverlay.style.display = "none";
+				}
+				else
+				{
+					VibeJs.Admin.workspaceView = true;
+					launcherIcon.src = "vibe.js/page.png";
+					VibeJs.Admin.DrawAdminWorkspace();
+				}
+
+			});
+
+			launcher.appendChild (launcherIcon);
+
 			VibeJs.widgetContainer.appendChild (launcher);
+			VibeJs.adminLauncher = launcher;
 
-			var dashboardIcon = document.createElement ("img");
-			dashboardIcon.style.width = "50px";
-			dashboardIcon.style.height = "50px";
-			dashboardIcon.style.margin = "4px 0px 0px 130px";
-			dashboardIcon.style.opacity = "0.4";
-			dashboardIcon.src = "vibe.js/dashboard.png";
+			/*VibeJs.widgetContainer.addEventListener ("mouseout", function (event)
+			{
+				if (!VibeJs.Admin.workspaceOverlay)
+				{
+					setTimeout (function()
+					{
+						if (VibeJs.adminLauncher)
+						{
+							VibeJs.adminLauncher.parentElement.removeChild (VibeJs.adminLauncher);
+							VibeJs.adminLauncher = null;
+						}
 
-			launcher.appendChild (dashboardIcon);
+						VibeJs.testingButtonState = "ready";
+						VibeJs.widget.style.backgroundImage = 'url("vibe.js/talk.png")';
 
-			return launcher;
+					}, 1000);
+				}
+			});*/
 		},
 
 		DrawAdminWorkspace : function()
@@ -387,6 +413,12 @@ var VibeJs = {
 
 				VibeJs.Admin.workspaceOverlay = workspaceOverlay;
 			}
+			else
+			{
+				VibeJs.Admin.workspaceOverlay.style.display = "block";
+			}
+
+			console.log (VibeJs.Persist.RetrieveByKey ("data"))
 		}
 	},
 
@@ -421,6 +453,28 @@ var VibeJs = {
 
 				data  : newRecording
 			}
+		},
+
+		RetrieveByKey    : function (queryKey)
+		{
+			var dataKeys = Object.keys (VibeJs.Persist.currentRecording);
+
+			if (dataKeys.indexOf (queryKey) !== -1)
+			{
+				var matchingKeys = dataKeys.filter (function (key)
+				{
+					return key.indexOf (queryKey) !== -1;
+				});
+
+				var matchingValues = matchingKeys.map (function (key)
+				{
+					return VibeJs.Persist.currentRecording[key];
+				});
+
+				return matchingValues;
+			}
+
+			return null;
 		}
 	}
 }
