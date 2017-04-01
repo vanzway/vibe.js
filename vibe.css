@@ -113,3 +113,20 @@
 	z-index             : 2000;
 	opacity             : 0.9;
 }
+
+.queryBar
+{
+	min-height          : 45px;
+	width               : 70%;
+	float               : right;
+	color               : #999999;
+	white-space         : nowrap;
+	font-weight         : bold;
+	font-size           : 15pt;
+	background-color    : #000000;
+	border              : 1px solid #999999;
+	border-radius       : 5px;
+	margin              : 10px;
+	padding             : 5px;
+	overflow            : hidden;
+}

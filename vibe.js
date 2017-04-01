@@ -8,11 +8,24 @@ var VibeJs = {
 	ratingForm         : null,
 	commentButton      : null,
 	commentText        : null,
-	adminLauncher      : null,
+	dashboardLauncher  : null,
 	targetElements     : ["DIV", "SPAN"],
 
 	DrawWidget       : function()
 	{
+		VibeJs.Utilities.PreloadImages (
+		[
+			"vibe.js/talk.png",
+			"vibe.js/record.png",
+			"vibe.js/pause.png",
+			"vibe.js/star.png",
+			"vibe.js/disabledstar.png",
+			"vibe.js/star.png",
+			"vibe.js/write.png",
+			"vibe.js/dashboard.png",
+			"vibe.js/page.png"
+		]);
+
 		this.widgetContainer = document.querySelectorAll ("vibejs")[0];
 		this.widget = document.createElement ("div");
 		this.widget.className = "vibeJsWidget " + this.theme;
@@ -33,16 +46,16 @@ var VibeJs = {
 			switch (VibeJs.testingButtonState)
 			{
 				case "ready":
-					VibeJs.Admin.DrawAdminLauncher();
+					VibeJs.Dashboard.DrawDashboardLauncher();
 					VibeJs.widget.style.backgroundImage = 'url("vibe.js/record.png")';
 					VibeJs.testingButtonState = "record";
 					break;
 
 				case "record":
-					if (VibeJs.adminLauncher)
+					if (VibeJs.dashboardLauncher)
 					{
-						VibeJs.adminLauncher.parentElement.removeChild (VibeJs.adminLauncher);
-						VibeJs.adminLauncher = null;
+						VibeJs.dashboardLauncher.parentElement.removeChild (VibeJs.dashboardLauncher);
+						VibeJs.dashboardLauncher = null;
 					}
 
 					VibeJs.widget.style.backgroundImage = 'url("vibe.js/pause.png")';
@@ -50,13 +63,13 @@ var VibeJs = {
 					break;
 
 				case "pause":
-					VibeJs.Admin.DrawAdminLauncher();
+					VibeJs.Dashboard.DrawDashboardLauncher();
 					VibeJs.widget.style.backgroundImage = 'url("vibe.js/record.png")';
 					VibeJs.Persist.currentRecording = VibeJs.Persist.CreateRecording();
 					VibeJs.testingButtonState = "record";
 
 				default :
-					VibeJs.Admin.DrawAdminLauncher();
+					VibeJs.Dashboard.DrawDashboardLauncher();
 					VibeJs.widget.style.backgroundImage = 'url("vibe.js/record.png")';
 					VibeJs.testingButtonState = "record";
 					break;
@@ -313,40 +326,55 @@ var VibeJs = {
 		}
 	},
 
-	GetXPath         : function (element)
+	Utilities        :
 	{
-		if (element.tagName == 'HTML'){return '/HTML[1]'};
-		if (element === document.body){return '/HTML[1]/BODY[1]'};
-
-		var index = 0;
-		var siblings = element.parentNode.childNodes;
-
-		for (var siblingIndex = 0; siblingIndex < siblings.length; siblingIndex++)
+		PreloadImages : function (imagesArray)
 		{
-			var sibling = siblings[siblingIndex];
+			var images = [];
 
-			if (sibling === element)
+			for (image in imagesArray)
 			{
-				return VibeJs.GetXPath (element.parentNode) + '/' + element.tagName + '[' + (index + 1) + ']';
+				images[image] = new Image();
+				images[image].src = imagesArray[image];
 			}
+		},
 
-			if (sibling.nodeType === 1 && sibling.tagName === element.tagName){index++};
+		GetXPath         : function (element)
+		{
+			if (element.tagName == 'HTML'){return '/HTML[1]'};
+			if (element === document.body){return '/HTML[1]/BODY[1]'};
+
+			var index = 0;
+			var siblings = element.parentNode.childNodes;
+
+			for (var siblingIndex = 0; siblingIndex < siblings.length; siblingIndex++)
+			{
+				var sibling = siblings[siblingIndex];
+
+				if (sibling === element)
+				{
+					return VibeJs.Utilities.GetXPath (element.parentNode) + '/' + element.tagName + '[' + (index + 1) + ']';
+				}
+
+				if (sibling.nodeType === 1 && sibling.tagName === element.tagName){index++};
+			}
 		}
 	},
 
-	Admin            :
+	Dashboard            :
 	{
 		workspaceView    : false,
 		workspaceOverlay : null,
+		queryBar         : null,
 
-		DrawAdminLauncher : function()
+		DrawDashboardLauncher : function()
 		{
-			var adminLauncherTimeOut;
+			var dashboardLauncherTimeOut;
 
-			if (VibeJs.adminLauncher)
+			if (VibeJs.dashboardLauncher)
 			{
-				VibeJs.adminLauncher.parentElement.removeChild (VibeJs.adminLauncher);
-				VibeJs.adminLauncher = null;
+				VibeJs.dashboardLauncher.parentElement.removeChild (VibeJs.dashboardLauncher);
+				VibeJs.dashboardLauncher = null;
 			}
 
 			var launcher = document.createElement ("div");
@@ -362,17 +390,17 @@ var VibeJs = {
 
 			launcher.addEventListener ("click", function()
 			{
-				if (VibeJs.Admin.workspaceView)
+				if (VibeJs.Dashboard.workspaceView)
 				{
-					VibeJs.Admin.workspaceView = false;
+					VibeJs.Dashboard.workspaceView = false;
 					launcherIcon.src = "vibe.js/dashboard.png";
-					VibeJs.Admin.workspaceOverlay.style.display = "none";
+					VibeJs.Dashboard.workspaceOverlay.style.display = "none";
 				}
 				else
 				{
-					VibeJs.Admin.workspaceView = true;
+					VibeJs.Dashboard.workspaceView = true;
 					launcherIcon.src = "vibe.js/page.png";
-					VibeJs.Admin.DrawAdminWorkspace();
+					VibeJs.Dashboard.DrawDashboardWorkspace();
 				}
 
 			});
@@ -380,18 +408,18 @@ var VibeJs = {
 			launcher.appendChild (launcherIcon);
 
 			VibeJs.widgetContainer.appendChild (launcher);
-			VibeJs.adminLauncher = launcher;
+			VibeJs.dashboardLauncher = launcher;
 
 			/*VibeJs.widgetContainer.addEventListener ("mouseout", function (event)
 			{
-				if (!VibeJs.Admin.workspaceOverlay)
+				if (!VibeJs.Dashboard.workspaceOverlay)
 				{
 					setTimeout (function()
 					{
-						if (VibeJs.adminLauncher)
+						if (VibeJs.dashboardLauncher)
 						{
-							VibeJs.adminLauncher.parentElement.removeChild (VibeJs.adminLauncher);
-							VibeJs.adminLauncher = null;
+							VibeJs.dashboardLauncher.parentElement.removeChild (VibeJs.dashboardLauncher);
+							VibeJs.dashboardLauncher = null;
 						}
 
 						VibeJs.testingButtonState = "ready";
@@ -402,23 +430,71 @@ var VibeJs = {
 			});*/
 		},
 
-		DrawAdminWorkspace : function()
+		DrawDashboardWorkspace : function()
 		{
-			if (!VibeJs.Admin.workspaceOverlay)
+			var workspaceOverlay;
+
+			if (!VibeJs.Dashboard.workspaceOverlay)
 			{
-				var workspaceOverlay = document.createElement ("div");
+				workspaceOverlay = document.createElement ("div");
 				workspaceOverlay.className = "workspaceOverlay";
 				VibeJs.widgetContainer.appendChild (workspaceOverlay);
 
-				VibeJs.Admin.workspaceOverlay = workspaceOverlay;
+				VibeJs.Dashboard.workspaceOverlay = workspaceOverlay;
 			}
 			else
 			{
-				VibeJs.Admin.workspaceOverlay.style.display = "block";
+				VibeJs.Dashboard.workspaceOverlay.style.display = "block";
 			}
 
-			console.log (VibeJs.Persist.Retrieve.QueryParser ("rating > 0 AND comment == 'asd'"))
+			VibeJs.Dashboard.DrawQueryBar (VibeJs.Dashboard.workspaceOverlay, function (results)
+			{
+				console.log (results)
 
+				var auditCard = VibeJs.Dashboard.DrawAuditCard();
+				var dataCard = VibeJs.Dashboard.DrawDataCard();
+			});
+		},
+
+		DrawQueryBar : function (parentElement, QueryCallBack)
+		{
+			if (!VibeJs.Dashboard.queryBar)
+			{
+				var queryBar = document.createElement ("div");
+				queryBar.className = "queryBar";
+				queryBar.setAttribute ("contenteditable", "true");
+				queryBar.innerText = "rating is not empty and comment is not empty";
+
+				queryBar.addEventListener ("keypress", function (event)
+				{
+					if (event.keyCode == 13)
+					{
+						event.preventDefault();
+
+						results = ExecuteQuery (queryBar.innerText);
+						QueryCallBack (results);
+					}
+				});
+
+				parentElement.appendChild (queryBar);
+				VibeJs.Dashboard.queryBar = queryBar;
+
+				function ExecuteQuery (query)
+				{
+					var queryResult = VibeJs.Persist.Retrieve.QueryParser (query);
+					return queryResult;
+				}
+			}
+
+			return null;
+		},
+
+		DrawAuditCard : function()
+		{
+		},
+
+		DrawDataCard : function()
+		{
 		}
 	},
 
@@ -438,8 +514,8 @@ var VibeJs = {
 				{
 					newRecording.push (
 					{
-						xpath   : VibeJs.GetXPath (elements[index]),
-						rating  : elements[index].dataset.rating + 1, // Cos we storing a value and not an index.
+						xpath   : VibeJs.Utilities.GetXPath (elements[index]),
+						rating  : parseInt (elements[index].dataset.rating) + 1, // Cos we storing a value and not an index.
 						comment : elements[index].dataset.comment
 					})
 				}
@@ -479,19 +555,50 @@ var VibeJs = {
 			{
 				if (VibeJs.Persist.currentRecording.data)
 				{
-					var parsedQuery;
+					var parsedQuery = query;
 
-					parsedQuery = query.replace (new RegExp ("AND", 'g'), "&&");
-					parsedQuery = parsedQuery.replace (new RegExp ("OR", 'g'), "||");
-
-					for (validKeys in VibeJs.Persist.currentRecording.data[0])
+					if (parsedQuery.indexOf ("comment has") != -1)
 					{
-						parsedQuery = parsedQuery.replace (new RegExp (validKeys, 'g'), "key['" + validKeys + "']");
+						var searchTerm = parsedQuery.split ("'")[1];
+
+						return VibeJs.Persist.currentRecording.data.filter (function (key)
+						{
+							try
+							{
+								return eval ("key.comment.indexOf ('" + searchTerm + "') != -1") || null;
+							}
+							catch (error)
+							{
+								return error;
+							}
+						});
+					}
+					else
+					{
+						for (validKeys in VibeJs.Persist.currentRecording.data[0])
+						{
+							parsedQuery = parsedQuery.replace (new RegExp (validKeys, 'g'), "key['" + validKeys + "']");
+						}
+
+						parsedQuery = parsedQuery.replace (new RegExp ("and", 'g'), "&&");
+						parsedQuery = parsedQuery.replace (new RegExp ("or", 'g'), "||");
+						parsedQuery = parsedQuery.replace (new RegExp ("is not ", 'g'), "!=");
+						parsedQuery = parsedQuery.replace (new RegExp ("is greater than", 'g'), ">");
+						parsedQuery = parsedQuery.replace (new RegExp ("is less than", 'g'), "<");
+						parsedQuery = parsedQuery.replace (new RegExp ("is", 'g'), "==");
+						parsedQuery = parsedQuery.replace (new RegExp ("empty", 'g'), "''");
 					}
 
 					return VibeJs.Persist.currentRecording.data.filter (function (key)
 					{
-						return eval (parsedQuery);
+						try
+						{
+							return eval (parsedQuery) || null;
+						}
+						catch (error)
+						{
+							return error;
+						}
 					});
 				}
 				else
