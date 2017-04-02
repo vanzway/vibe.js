@@ -24,7 +24,7 @@ var VibeJs = {
 			"vibe.js/write.png",
 			"vibe.js/dashboard.png",
 			"vibe.js/page.png",
-			"vibe.js/open.png",
+			"vibe.js/view.png",
 			"vibe.js/back.png"
 		]);
 
@@ -569,7 +569,7 @@ var VibeJs = {
 				cardComment.innerText = cards[card].comment;
 
 				var previewElement = document.createElement ("div");
-				previewElement.style.backgroundImage = 'url("vibe.js/open.png")';
+				previewElement.style.backgroundImage = 'url("vibe.js/view.png")';
 				previewElement.style.backgroundColor = '#00b6ff';
 				previewElement.style.width = "30px";
 				previewElement.style.height = "30px";
@@ -597,7 +597,7 @@ var VibeJs = {
 					backIcon.src = "vibe.js/back.png";
 
 					var cardElement = document.evaluate (event.target.dataset.xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-					cardElement.scrollIntoView ({block: "end", behavior: "smooth"});
+					cardElement.scrollIntoView ({block: "start", behavior: "smooth"});
 					cardElement.classList.add ("highlight");
 
 					VibeJs.Dashboard.workspaceOverlay.style.display = "none";
