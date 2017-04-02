@@ -540,10 +540,13 @@ var VibeJs = {
 
 		DrawDataCards : function (cards)
 		{
+			while (VibeJs.Dashboard.dataContainer.firstChild)
+			{
+				VibeJs.Dashboard.dataContainer.removeChild (VibeJs.Dashboard.dataContainer.firstChild);
+			}
 
 			for (card in cards)
 			{
-				var cardElement = document.evaluate (cards[card].xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 				var dataCard = document.createElement ("div");
 				dataCard.className = "dataCard";
 
@@ -570,6 +573,7 @@ var VibeJs = {
 				previewElement.style.backgroundRepeat = "no-repeat";
 				previewElement.style.backgroundPosition = "center";
 				previewElement.style.borderRadius = "5px";
+				previewElement.dataset.xpath = cards[card].xpath;
 
 				dataCard.appendChild (cardRating);
 				dataCard.appendChild (cardComment);
@@ -587,6 +591,7 @@ var VibeJs = {
 					backIcon.style.opacity = "0.4";
 					backIcon.src = "vibe.js/back.png";
 
+					var cardElement = document.evaluate (event.target.dataset.xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 					cardElement.scrollIntoView ({block: "end", behavior: "smooth"});
 					cardElement.classList.add ("highlight");
 

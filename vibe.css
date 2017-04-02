@@ -221,7 +221,7 @@
 
 	.dataCard
 	{
-		min-height          : 100px;
+		min-height          : 30px;
 		width               : 98%;
 	}
 }
