@@ -23,6 +23,13 @@
 	box-shadow          : 0px 10px 25px #000000;
 }
 
+.highlight
+{
+	outline-color       : #00A1FF;
+	outline-style       : dashed;
+	box-shadow          : 0px 0px 15px #00A1FF;
+}
+
 .ratingForm
 {
 	width               : 120px;
@@ -107,11 +114,38 @@
 {
 	height              : 100%;
 	width               : 100%;
-	background-color    : #000000;
+	background-color    : rgba(0, 0, 0, 0.9);
 	position            : fixed;
 	top                 : 0px;
+	right               : 0px;
+	bottom              : 0px;
+	left                : 0px;
 	z-index             : 2000;
-	opacity             : 0.9;
+}
+
+.queryBarContainer
+{
+	height              : 60px;
+	width               : 100%;
+	outline-style       : 1px solid #FF0000;
+	display             : block;
+}
+
+.auditCardContainer
+{
+	min-height          : 45px;
+	width               : 25%;
+	display             : inline-block;
+	float               : left;
+}
+
+.dataCardContainer
+{
+	min-height          : 45px;
+	width               : 75%;
+	display             : inline-block;
+	float               : left;
+	overflow-y          : visible;
 }
 
 .queryBar
@@ -129,4 +163,65 @@
 	margin              : 10px;
 	padding             : 5px;
 	overflow            : hidden;
+}
+
+.dataCard
+{
+	min-height          : 50px;
+	width               : 48%;
+	margin              : 1%;
+	padding             : 5px;
+	background-color    : #000000;
+	color               : #ffffff;
+	border              : 1px solid #333333;
+	border-radius       : 5px;
+	float               : left;
+}
+
+.backButton
+{
+	min-height          : 60px;
+	width               : 100px;
+	background-color    : #000000;
+	border              : 1px solid #999999;
+	border-radius       : 50px 0px 0px 50px;
+	box-shadow          : 0px 0px 2px #666666;
+	position            : absolute;
+	z-index             : 2005;
+	cursor              : pointer;
+}
+
+@media all and (max-width: 600px)
+{
+	.queryBarContainer
+	{
+		height              : 60px;
+		width               : 100%;
+		margin-top          : 60px;
+	}
+
+	.auditCardContainer
+	{
+		width               : 100%;
+	}
+
+	.dataCardContainer
+	{
+		width               : 100%;
+	}
+
+	.queryBar
+	{
+		display             : block;
+		float               : left;
+		width               : 95%;
+		min-height          : 30px;
+		font-size           : 10pt;
+	}
+
+	.dataCard
+	{
+		min-height          : 100px;
+		width               : 98%;
+	}
 }

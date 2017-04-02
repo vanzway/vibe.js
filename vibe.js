@@ -23,7 +23,9 @@ var VibeJs = {
 			"vibe.js/star.png",
 			"vibe.js/write.png",
 			"vibe.js/dashboard.png",
-			"vibe.js/page.png"
+			"vibe.js/page.png",
+			"vibe.js/open.png",
+			"vibe.js/back.png"
 		]);
 
 		this.widgetContainer = document.querySelectorAll ("vibejs")[0];
@@ -366,6 +368,8 @@ var VibeJs = {
 		workspaceView    : false,
 		workspaceOverlay : null,
 		queryBar         : null,
+		auditContainer   : null,
+		dataContainer    : null,
 
 		DrawDashboardLauncher : function()
 		{
@@ -390,19 +394,37 @@ var VibeJs = {
 
 			launcher.addEventListener ("click", function()
 			{
+				var highlightedElements = document.querySelectorAll (".highlight");
+
+				for (index = 0; index < highlightedElements.length; ++index)
+				{
+					highlightedElements[index].classList.remove ("highlight");
+				}
+
 				if (VibeJs.Dashboard.workspaceView)
 				{
-					VibeJs.Dashboard.workspaceView = false;
-					launcherIcon.src = "vibe.js/dashboard.png";
-					VibeJs.Dashboard.workspaceOverlay.style.display = "none";
+					if (VibeJs.Dashboard.workspaceState != "preview")
+					{
+						VibeJs.Dashboard.workspaceView = false;
+						launcherIcon.src = "vibe.js/dashboard.png";
+						VibeJs.Dashboard.workspaceOverlay.style.display = "none";
+						document.body.style.overflow = "auto";
+					}
+					else
+					{
+						VibeJs.Dashboard.workspaceOverlay.style.display = "block";
+						launcherIcon.src = "vibe.js/page.png";
+						VibeJs.Dashboard.workspaceState = "";
+					}
 				}
 				else
 				{
 					VibeJs.Dashboard.workspaceView = true;
 					launcherIcon.src = "vibe.js/page.png";
 					VibeJs.Dashboard.DrawDashboardWorkspace();
+					document.body.style.overflow = "hidden";
+					VibeJs.Dashboard.workspaceOverlay.style.overflowY = "scroll";
 				}
-
 			});
 
 			launcher.appendChild (launcherIcon);
@@ -441,19 +463,35 @@ var VibeJs = {
 				VibeJs.widgetContainer.appendChild (workspaceOverlay);
 
 				VibeJs.Dashboard.workspaceOverlay = workspaceOverlay;
+
+				var queryBarContainer = document.createElement ("div");
+				queryBarContainer.className = "queryBarContainer";
+				workspaceOverlay.appendChild (queryBarContainer);
+
+				var auditCardContainer = document.createElement ("div");
+				auditCardContainer.className = "auditCardContainer";
+				workspaceOverlay.appendChild (auditCardContainer);
+
+				var dataCardContainer = document.createElement ("div");
+				dataCardContainer.className = "dataCardContainer";
+				workspaceOverlay.appendChild (dataCardContainer);
+
+				VibeJs.Dashboard.dataContainer = dataCardContainer;
+
+				VibeJs.Dashboard.DrawQueryBar (queryBarContainer, function (results)
+				{
+					var dataCard = VibeJs.Dashboard.DrawDataCards (results);
+				});
+
+				VibeJs.Dashboard.DrawAuditCard (auditCardContainer);
+
 			}
 			else
 			{
 				VibeJs.Dashboard.workspaceOverlay.style.display = "block";
 			}
 
-			VibeJs.Dashboard.DrawQueryBar (VibeJs.Dashboard.workspaceOverlay, function (results)
-			{
-				console.log (results)
 
-				var auditCard = VibeJs.Dashboard.DrawAuditCard();
-				var dataCard = VibeJs.Dashboard.DrawDataCard();
-			});
 		},
 
 		DrawQueryBar : function (parentElement, QueryCallBack)
@@ -489,12 +527,76 @@ var VibeJs = {
 			return null;
 		},
 
-		DrawAuditCard : function()
+		DrawAuditCard : function (cardContainer)
 		{
+			var auditCard = document.createElement ("div");
+			auditCard.className = "auditCard";
+			cardContainer.appendChild (auditCard);
+
+			var auditDetails = VibeJs.Persist.Retrieve.AuditDetails();
+
+			console.log (auditDetails)
 		},
 
-		DrawDataCard : function()
+		DrawDataCards : function (cards)
 		{
+
+			for (card in cards)
+			{
+				var cardElement = document.evaluate (cards[card].xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+				var dataCard = document.createElement ("div");
+				dataCard.className = "dataCard";
+
+				var starText = "";
+
+				for (count = 0; count < cards[card].rating; count++)
+				{
+					starText += "&bigstar;";
+				}
+
+				var cardRating = document.createElement ("div");
+				cardRating.innerHTML = starText;
+
+				var cardComment = document.createElement ("div");
+				cardComment.innerText = cards[card].comment;
+
+				var previewElement = document.createElement ("div");
+				previewElement.style.backgroundImage = 'url("vibe.js/open.png")';
+				previewElement.style.backgroundColor = '#00b6ff';
+				previewElement.style.width = "30px";
+				previewElement.style.height = "30px";
+				previewElement.style.float = "right";
+				previewElement.style.cursor = "pointer";
+				previewElement.style.backgroundRepeat = "no-repeat";
+				previewElement.style.backgroundPosition = "center";
+				previewElement.style.borderRadius = "5px";
+
+				dataCard.appendChild (cardRating);
+				dataCard.appendChild (cardComment);
+				dataCard.appendChild (previewElement);
+
+				VibeJs.Dashboard.dataContainer.appendChild (dataCard);
+
+				previewElement.addEventListener ("click", function()
+				{
+					var backIcon = document.createElement ("img");
+					backIcon.className = "backIcon";
+					backIcon.style.width = "50px";
+					backIcon.style.height = "50px";
+					backIcon.style.margin = "4px 0px 0px 130px";
+					backIcon.style.opacity = "0.4";
+					backIcon.src = "vibe.js/back.png";
+
+					cardElement.scrollIntoView ({block: "end", behavior: "smooth"});
+					cardElement.classList.add ("highlight");
+
+					VibeJs.Dashboard.workspaceOverlay.style.display = "none";
+					VibeJs.Dashboard.workspaceState = "preview";
+					VibeJs.Dashboard.DrawDashboardLauncher();
+
+					document.querySelectorAll (".launcherIcon")[0].src = "vibe.js/back.png";
+				});
+			}
 		}
 	},
 
