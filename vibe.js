@@ -412,6 +412,7 @@ var VibeJs = {
 					if (VibeJs.Dashboard.workspaceState != "preview")
 					{
 						VibeJs.Dashboard.workspaceView = false;
+						VibeJs.widget.style.backgroundImage = 'url("vibe.js/record.png")';
 						launcherIcon.src = "vibe.js/dashboard.png";
 						VibeJs.Dashboard.workspaceOverlay.style.display = "none";
 						document.body.style.overflow = "auto";
@@ -426,6 +427,7 @@ var VibeJs = {
 				else
 				{
 					VibeJs.Dashboard.workspaceView = true;
+					VibeJs.widget.style.backgroundImage = 'url("vibe.js/talk.png")';
 					launcherIcon.src = "vibe.js/page.png";
 					VibeJs.Dashboard.DrawDashboardWorkspace();
 					document.body.style.overflow = "hidden";
@@ -490,14 +492,11 @@ var VibeJs = {
 				});
 
 				VibeJs.Dashboard.DrawAuditCard (auditCardContainer);
-
 			}
 			else
 			{
 				VibeJs.Dashboard.workspaceOverlay.style.display = "block";
 			}
-
-
 		},
 
 		DrawQueryBar : function (parentElement, QueryCallBack)
