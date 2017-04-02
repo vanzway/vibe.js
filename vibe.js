@@ -9,7 +9,7 @@ var VibeJs = {
 	commentButton      : null,
 	commentText        : null,
 	dashboardLauncher  : null,
-	targetElements     : ["DIV", "SPAN"],
+	targetElements     : ["DIV", "SPAN", "CANVAS"],
 
 	DrawWidget       : function()
 	{
@@ -44,6 +44,12 @@ var VibeJs = {
 		this.widget.addEventListener ("click", function (event)
 		{
 			VibeJs.highlightedElement = null;
+
+			if (VibeJs.Dashboard.workspaceView == true)
+			{
+				event.preventDefault();
+				return;
+			}
 
 			switch (VibeJs.testingButtonState)
 			{
