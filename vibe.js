@@ -422,6 +422,9 @@ var VibeJs = {
 						VibeJs.Dashboard.workspaceOverlay.style.display = "block";
 						launcherIcon.src = "vibe.js/page.png";
 						VibeJs.Dashboard.workspaceState = "";
+
+						var workspaceload = new Event ('workspaceload');
+						VibeJs.Dashboard.queryBar.dispatchEvent (workspaceload);
 					}
 				}
 				else
@@ -432,6 +435,9 @@ var VibeJs = {
 					VibeJs.Dashboard.DrawDashboardWorkspace();
 					document.body.style.overflow = "hidden";
 					VibeJs.Dashboard.workspaceOverlay.style.overflowY = "scroll";
+
+					var workspaceload = new Event ('workspaceload');
+					VibeJs.Dashboard.queryBar.dispatchEvent (workspaceload);
 				}
 			});
 
@@ -506,7 +512,7 @@ var VibeJs = {
 				var queryBar = document.createElement ("div");
 				queryBar.className = "queryBar";
 				queryBar.setAttribute ("contenteditable", "true");
-				queryBar.innerText = "rating is not empty and comment is not empty";
+				queryBar.innerText = "rating is not empty";
 
 				queryBar.addEventListener ("keypress", function (event)
 				{
@@ -514,9 +520,15 @@ var VibeJs = {
 					{
 						event.preventDefault();
 
-						results = ExecuteQuery (queryBar.innerText);
+						var results = ExecuteQuery (queryBar.innerText);
 						QueryCallBack (results);
 					}
+				});
+
+				queryBar.addEventListener ("workspaceload", function (event)
+				{
+					var results = ExecuteQuery (queryBar.innerText);
+					QueryCallBack (results);
 				});
 
 				parentElement.appendChild (queryBar);
@@ -628,7 +640,7 @@ var VibeJs = {
 					{
 						xpath   : VibeJs.Utilities.GetXPath (elements[index]),
 						rating  : parseInt (elements[index].dataset.rating) + 1, // Cos we storing a value and not an index.
-						comment : elements[index].dataset.comment
+						comment : elements[index].dataset.comment || ""
 					})
 				}
 			}

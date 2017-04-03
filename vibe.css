@@ -163,6 +163,9 @@
 	margin              : 10px;
 	padding             : 5px;
 	overflow            : hidden;
+	background-image    : url("search.png");
+    background-repeat   : no-repeat;
+    background-position : right;
 }
 
 .dataCard
@@ -214,7 +217,7 @@
 	{
 		display             : block;
 		float               : left;
-		width               : 95%;
+		max-width           : 70%;
 		min-height          : 30px;
 		font-size           : 10pt;
 	}
