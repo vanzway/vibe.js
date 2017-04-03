@@ -156,7 +156,7 @@
 	color               : #999999;
 	white-space         : nowrap;
 	font-weight         : bold;
-	font-size           : 15pt;
+	font-size           : 12pt;
 	background-color    : #000000;
 	border              : 1px solid #999999;
 	border-radius       : 5px;
@@ -217,7 +217,7 @@
 	{
 		display             : block;
 		float               : left;
-		max-width           : 70%;
+		width               : 95%;
 		min-height          : 30px;
 		font-size           : 10pt;
 	}
