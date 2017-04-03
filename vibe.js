@@ -1,6 +1,6 @@
 var VibeJs = {
 
-	testingButtonState : "ready",
+	widgetButtonState  : "ready",
 	theme              : "blue",
 	widgetContainer    : null,
 	widget             : null,
@@ -25,7 +25,8 @@ var VibeJs = {
 			"vibe.js/dashboard.png",
 			"vibe.js/page.png",
 			"vibe.js/view.png",
-			"vibe.js/back.png"
+			"vibe.js/back.png",
+			"vibe.js/search.png"
 		]);
 
 		this.widgetContainer = document.querySelectorAll ("vibejs")[0];
@@ -33,9 +34,11 @@ var VibeJs = {
 		this.widget.className = "vibeJsWidget " + this.theme;
 		this.widgetContainer.appendChild (this.widget);
 
+		var widgetStateChange = new Event ('widgetstatechange');
+
 		document.addEventListener ("mouseover", function (event)
 		{
-			if (VibeJs.testingButtonState == "pause")
+			if (VibeJs.widgetButtonState == "pause")
 			{
 				VibeJs.HighlightElement (event.target);
 			}
@@ -51,12 +54,14 @@ var VibeJs = {
 				return;
 			}
 
-			switch (VibeJs.testingButtonState)
+			VibeJs.widget.dispatchEvent (widgetStateChange);
+
+			switch (VibeJs.widgetButtonState)
 			{
 				case "ready":
 					VibeJs.Dashboard.DrawDashboardLauncher();
 					VibeJs.widget.style.backgroundImage = 'url("vibe.js/record.png")';
-					VibeJs.testingButtonState = "record";
+					VibeJs.widgetButtonState = "record";
 					break;
 
 				case "record":
@@ -67,19 +72,19 @@ var VibeJs = {
 					}
 
 					VibeJs.widget.style.backgroundImage = 'url("vibe.js/pause.png")';
-					VibeJs.testingButtonState = "pause";
+					VibeJs.widgetButtonState = "pause";
 					break;
 
 				case "pause":
 					VibeJs.Dashboard.DrawDashboardLauncher();
 					VibeJs.widget.style.backgroundImage = 'url("vibe.js/record.png")';
 					VibeJs.Persist.currentRecording = VibeJs.Persist.CreateRecording();
-					VibeJs.testingButtonState = "record";
+					VibeJs.widgetButtonState = "record";
 
 				default :
 					VibeJs.Dashboard.DrawDashboardLauncher();
 					VibeJs.widget.style.backgroundImage = 'url("vibe.js/record.png")';
-					VibeJs.testingButtonState = "record";
+					VibeJs.widgetButtonState = "record";
 					break;
 			}
 		});
@@ -458,7 +463,7 @@ var VibeJs = {
 							VibeJs.dashboardLauncher = null;
 						}
 
-						VibeJs.testingButtonState = "ready";
+						VibeJs.widgetButtonState = "ready";
 						VibeJs.widget.style.backgroundImage = 'url("vibe.js/talk.png")';
 
 					}, 1000);
