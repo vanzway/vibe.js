@@ -494,7 +494,7 @@ var VibeJs = {
 
 				VibeJs.Dashboard.DrawQueryBar (queryBarContainer, function (results)
 				{
-					var dataCard = VibeJs.Dashboard.DrawDataCards (results);
+					VibeJs.Dashboard.DrawDataCards (results);
 				});
 
 				VibeJs.Dashboard.DrawAuditCard (auditCardContainer);
@@ -562,62 +562,75 @@ var VibeJs = {
 				VibeJs.Dashboard.dataContainer.removeChild (VibeJs.Dashboard.dataContainer.firstChild);
 			}
 
-			for (card in cards)
+			if (cards)
 			{
-				var dataCard = document.createElement ("div");
-				dataCard.className = "dataCard";
-
-				var starText = "";
-
-				for (count = 0; count < cards[card].rating; count++)
+				for (card in cards)
 				{
-					starText += "&bigstar;";
+					var dataCard = document.createElement ("div");
+					dataCard.className = "dataCard";
+
+					var starText = "";
+
+					for (count = 0; count < cards[card].rating; count++)
+					{
+						starText += "&bigstar;";
+					}
+
+					var cardRating = document.createElement ("div");
+					cardRating.innerHTML = starText;
+
+					var cardComment = document.createElement ("div");
+					cardComment.innerText = cards[card].comment;
+
+					var previewElement = document.createElement ("div");
+					previewElement.style.backgroundImage = 'url("vibe.js/view.png")';
+					previewElement.style.backgroundColor = '#00b6ff';
+					previewElement.style.width = "30px";
+					previewElement.style.height = "30px";
+					previewElement.style.float = "right";
+					previewElement.style.cursor = "pointer";
+					previewElement.style.backgroundRepeat = "no-repeat";
+					previewElement.style.backgroundPosition = "center";
+					previewElement.style.borderRadius = "5px";
+					previewElement.dataset.xpath = cards[card].xpath;
+
+					dataCard.appendChild (cardRating);
+					dataCard.appendChild (cardComment);
+					dataCard.appendChild (previewElement);
+
+					VibeJs.Dashboard.dataContainer.appendChild (dataCard);
+
+					previewElement.addEventListener ("click", function()
+					{
+						var backIcon = document.createElement ("img");
+						backIcon.className = "backIcon";
+						backIcon.style.width = "50px";
+						backIcon.style.height = "50px";
+						backIcon.style.margin = "4px 0px 0px 130px";
+						backIcon.style.opacity = "0.4";
+						backIcon.src = "vibe.js/back.png";
+
+						var cardElement = document.evaluate (event.target.dataset.xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+						cardElement.scrollIntoView ({block: "start", behavior: "smooth"});
+						cardElement.classList.add ("highlight");
+
+						VibeJs.Dashboard.workspaceOverlay.style.display = "none";
+						VibeJs.Dashboard.workspaceState = "preview";
+						VibeJs.Dashboard.DrawDashboardLauncher();
+
+						document.querySelectorAll (".launcherIcon")[0].src = "vibe.js/back.png";
+					});
 				}
+			}
+			else
+			{
+				var notFoundMessage = document.createElement ("div");
+				notFoundMessage.style.textAlign = "center";
+				notFoundMessage.style.color = "#ffffff";
 
-				var cardRating = document.createElement ("div");
-				cardRating.innerHTML = starText;
+				notFoundMessage.innerText = "No results to display.";
 
-				var cardComment = document.createElement ("div");
-				cardComment.innerText = cards[card].comment;
-
-				var previewElement = document.createElement ("div");
-				previewElement.style.backgroundImage = 'url("vibe.js/view.png")';
-				previewElement.style.backgroundColor = '#00b6ff';
-				previewElement.style.width = "30px";
-				previewElement.style.height = "30px";
-				previewElement.style.float = "right";
-				previewElement.style.cursor = "pointer";
-				previewElement.style.backgroundRepeat = "no-repeat";
-				previewElement.style.backgroundPosition = "center";
-				previewElement.style.borderRadius = "5px";
-				previewElement.dataset.xpath = cards[card].xpath;
-
-				dataCard.appendChild (cardRating);
-				dataCard.appendChild (cardComment);
-				dataCard.appendChild (previewElement);
-
-				VibeJs.Dashboard.dataContainer.appendChild (dataCard);
-
-				previewElement.addEventListener ("click", function()
-				{
-					var backIcon = document.createElement ("img");
-					backIcon.className = "backIcon";
-					backIcon.style.width = "50px";
-					backIcon.style.height = "50px";
-					backIcon.style.margin = "4px 0px 0px 130px";
-					backIcon.style.opacity = "0.4";
-					backIcon.src = "vibe.js/back.png";
-
-					var cardElement = document.evaluate (event.target.dataset.xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-					cardElement.scrollIntoView ({block: "start", behavior: "smooth"});
-					cardElement.classList.add ("highlight");
-
-					VibeJs.Dashboard.workspaceOverlay.style.display = "none";
-					VibeJs.Dashboard.workspaceState = "preview";
-					VibeJs.Dashboard.DrawDashboardLauncher();
-
-					document.querySelectorAll (".launcherIcon")[0].src = "vibe.js/back.png";
-				});
+				VibeJs.Dashboard.dataContainer.appendChild (notFoundMessage);
 			}
 		}
 	},
