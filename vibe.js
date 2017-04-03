@@ -585,7 +585,7 @@ var VibeJs = {
 					cardRating.innerHTML = starText;
 
 					var cardComment = document.createElement ("div");
-					cardComment.innerText = cards[card].comment;
+					cardComment.innerText = cards[card].comment || "No comment provided.";
 
 					var previewElement = document.createElement ("div");
 					previewElement.style.backgroundImage = 'url("vibe.js/view.png")';
