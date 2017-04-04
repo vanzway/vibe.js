@@ -663,7 +663,7 @@ var VibeJs = {
 				}
 			}
 
-			return {
+			var recordingData = {
 				audit :
 				{
 					browser   : navigator.userAgent,
@@ -672,12 +672,19 @@ var VibeJs = {
 
 				data  : newRecording
 			}
+
+			VibeJs.Persist.currentRecording = recordingData;
+			localStorage.setItem ('currentRecording', JSON.stringify (VibeJs.Persist.currentRecording));
+			console.dir (JSON.parse (localStorage.getItem ('currentRecording')))
+
+			return recordingData;
 		},
 
 		Retrieve :
 		{
 			AuditDetails : function()
 			{
+				VibeJs.Persist.currentRecording = JSON.parse (localStorage.getItem ('currentRecording'));
 				var dataKeys = Object.keys (VibeJs.Persist.currentRecording);
 
 				var auditKeys = dataKeys.filter (function (key)
