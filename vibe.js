@@ -427,6 +427,7 @@ var VibeJs = {
 						VibeJs.Dashboard.workspaceOverlay.style.display = "block";
 						launcherIcon.src = "vibe.js/page.png";
 						VibeJs.Dashboard.workspaceState = "";
+						document.body.style.overflow = "hidden";
 
 						var workspaceload = new Event ('workspaceload');
 						VibeJs.Dashboard.queryBar.dispatchEvent (workspaceload);
@@ -614,6 +615,8 @@ var VibeJs = {
 						backIcon.style.margin = "4px 0px 0px 130px";
 						backIcon.style.opacity = "0.4";
 						backIcon.src = "vibe.js/back.png";
+
+						document.body.style.overflow = "auto";
 
 						var cardElement = document.evaluate (event.target.dataset.xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 						cardElement.scrollIntoView ({block: "start", behavior: "smooth"});
