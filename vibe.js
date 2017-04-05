@@ -620,6 +620,7 @@ var VibeJs = {
 
 						var cardElement = document.evaluate (event.target.dataset.xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 						cardElement.scrollIntoView ({block: "start", behavior: "smooth"});
+						window.scrollBy (0, -70);
 						cardElement.classList.add ("highlight");
 
 						VibeJs.Dashboard.workspaceOverlay.style.display = "none";
