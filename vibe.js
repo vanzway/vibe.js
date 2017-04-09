@@ -518,7 +518,7 @@ var VibeJs = {
 				var queryBar = document.createElement ("div");
 				queryBar.className = "queryBar";
 				queryBar.setAttribute ("contenteditable", "true");
-				queryBar.innerText = "rating is not empty";
+				queryBar.innerText = "rating is not empty sort up";
 
 				queryBar.addEventListener ("keypress", function (event)
 				{
@@ -710,6 +710,18 @@ var VibeJs = {
 				{
 					var parsedQuery = query;
 
+					if (parsedQuery.indexOf ("sort up") != -1)
+					{
+						VibeJs.Persist.Retrieve.SortObject ("assending");
+						parsedQuery = parsedQuery.replace (new RegExp ("sort up", 'g'), "");
+					}
+
+					if (parsedQuery.indexOf ("sort down") != -1)
+					{
+						VibeJs.Persist.Retrieve.SortObject ("descending");
+						parsedQuery = parsedQuery.replace (new RegExp ("sort down", 'g'), "");
+					}
+
 					if (parsedQuery.indexOf ("comment has") != -1)
 					{
 						var searchTerm = parsedQuery.split ("'")[1];
@@ -758,6 +770,42 @@ var VibeJs = {
 				{
 					return null;
 				}
+			},
+
+			SortObject : function (sortDirection)
+			{
+				function compare (value1, value2)
+				{
+					if (value1.rating < value2.rating)
+					{
+						if (sortDirection == "assending")
+						{
+							return -1;
+						}
+
+						if (sortDirection == "descending")
+						{
+							return 1;
+						}
+					}
+
+					if (value1.rating > value2.rating)
+					{
+						if (sortDirection == "assending")
+						{
+							return 1;
+						}
+
+						if (sortDirection == "descending")
+						{
+							return -1;
+						}
+					}
+
+					return 0;
+				}
+
+				VibeJs.Persist.currentRecording.data = VibeJs.Persist.currentRecording.data.sort (compare);
 			}
 		}
 	}
